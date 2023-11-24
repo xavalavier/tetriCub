@@ -1,2 +1,0 @@
-C:\Users\laval\Documents\GitHub\orbit\engine\Orbit.Engine\Orbit.Engine.csproj;neutral
-C:\Users\laval\source\repos\Frac\Frac\Frac.csproj;x64
