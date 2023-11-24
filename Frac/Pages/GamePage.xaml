@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:engine="clr-namespace:Orbit.Engine;assembly=Orbit.Engine"
+                xmlns:viewmodel ="clr-namespace:Frac.ViewModel"
+                x:DataType="viewmodel:GamePageViewModel"
+                x:Class="Frac.Pages.GamePage"
+                Title=""
+                Shell.NavBarIsVisible="False">
+
+    <Grid
+        RowDefinitions="60,*"
+        BackgroundColor="Black"
+        >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{OnPlatform 300, iOS=300, Android=150}"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{OnPlatform 500, iOS=300, Android=250}"/>
+        </Grid.ColumnDefinitions>
+
+        <engine:GameSceneView
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="3"
+            x:Name="SceneView" />
+        
+        
+        <Button 
+            Grid.Row="1"
+            Grid.Column="0"
+            BackgroundColor="Red"
+            Command ="{Binding RotateCommand}"
+            Scale="{OnPlatform 1, iOS=0.5, Android=0.5}"
+            WidthRequest="180" 
+            HeightRequest="180" 
+            CornerRadius="180"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"/>
+        
+        <Button 
+            Grid.Row="1"
+            Grid.Column="0"
+            BackgroundColor="DarkBlue"
+            Command ="{Binding RotateCommand}"
+            WidthRequest="120" 
+            HeightRequest="120" 
+            CornerRadius="120"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Scale="{OnPlatform 1, iOS=0.5, Android=0.5}"/>
+
+        <Button 
+            Grid.Row="1"
+            Grid.Column="2"
+            BackgroundColor="DarkBlue"
+            Command ="{Binding DropCommand}"
+            WidthRequest="120" 
+            HeightRequest="120" 
+            CornerRadius="120"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Scale="{OnPlatform 1, iOS=0.5, Android=0.5}"
+            />
+        <ImageButton 
+            Grid.Row="1"
+            Grid.Column="2"
+            Command ="{Binding TranslateCommand}"
+            CommandParameter ="up"
+            WidthRequest="80" 
+            HeightRequest="80" 
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Source="arrow.png"
+            Scale="{OnPlatform 2, iOS=0.5, Android=1}"
+            Rotation="0"
+            Background="Transparent"
+            TranslationY="{OnPlatform -150, iOS=-70, Android=-70}"
+            />
+        
+        <ImageButton 
+            Grid.Row="1"
+            Grid.Column="2"
+            Command ="{Binding TranslateCommand}"
+            CommandParameter = "right"
+            WidthRequest="80" 
+            HeightRequest="80" 
+            Scale="{OnPlatform 2, iOS=0.5, Android=1}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Rotation="90"
+            TranslationX="{OnPlatform 150, iOS=70, Android=70}"
+            Background="Transparent"
+            Source="arrow.png"/>
+        
+        <ImageButton 
+            Grid.Row="1"
+            Grid.Column="2"
+            Command ="{Binding TranslateCommand}"
+            CommandParameter ="down"
+            WidthRequest="80" 
+            HeightRequest="80" 
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Source="arrow.png"
+            Scale="{OnPlatform 2, iOS=0.5, Android=1}"
+            Rotation="180"
+            Background="Transparent"
+            TranslationY="{OnPlatform 150, iOS=70, Android=70}"/>
+
+        <ImageButton 
+            Grid.Row="1"
+            Grid.Column="2"
+            Command ="{Binding TranslateCommand}"
+            CommandParameter ="left"
+            WidthRequest="80" 
+            HeightRequest="80" 
+            Scale="{OnPlatform 2, iOS=0.5, Android=1}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Rotation="270"
+            Background="Transparent"
+            TranslationX="{OnPlatform -150, iOS=-70, Android=-70}"
+            Source="arrow.png"/>
+
+        <Frame
+        Padding="0"
+        x:Name="DrawingPanel"
+        HorizontalOptions="Start"
+        Grid.ColumnSpan="2">
+            <Grid ColumnDefinitions="100,200,150,250,200">
+                
+                <Button
+                    Grid.Column="0"
+                    Background="MediumPurple"
+                    Text="{Binding PauseText}"
+                    Command ="{Binding PauseCommand}" />
+
+                <Label
+                    Text="{Binding Score, StringFormat='Score: {0}'}"
+                    Grid.Column="1"
+                    FontSize="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    >
+                </Label>
+                <Label
+                    Text="{Binding Level, StringFormat='Level: {0}'}"
+                    Grid.Column="2"
+                    FontSize="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                </Label>
+                <Label
+                    Text="{Binding ClearedLayers, StringFormat='Cleared layers: {0}'}"
+                    Grid.Column="3"
+                    FontSize="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+                <Label
+                    Text="{Binding TimePlayed, StringFormat='{}{0:mm}:{0:ss}'}"
+                    Grid.Column="4"
+                    FontSize="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="Frac.Pages.MainPage"
+            xmlns:viewmodel ="clr-namespace:Frac.ViewModel"
+            x:DataType="viewmodel:MainPageViewModel"
+            Title="Frac"
+            BackgroundColor="Black">
+    <Grid
+        x:Name="ButtonGrid"
+        RowDefinitions="60,20,60,60,60"
+        ColumnDefinitions="60,60,60,60,60,60,60"
+        HorizontalOptions="Center"
+        VerticalOptions="Center"
+        >
+        <Grid.Resources>
+            <Style TargetType="Button">
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="BackgroundColor" Value="DarkGray"/>
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+        </Grid.Resources>
+        <Button 
+            x:Name="Start"
+            Grid.ColumnSpan="7"
+            Grid.Row="0"
+            Text="Start"
+            BackgroundColor="MediumPurple"
+            HorizontalOptions="FillAndExpand"
+            Command="{Binding StartCommand}"
+            />
+        <Label 
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Text="Starting level"
+            HorizontalOptions="Center"
+            TextColor="White"/>
+        <Label 
+            Grid.Row="1"
+            Grid.Column="4"
+            Grid.ColumnSpan="3"
+            Text="number of initial layers"
+            TextColor="White"/>
+    </Grid>
+</ContentPage>
