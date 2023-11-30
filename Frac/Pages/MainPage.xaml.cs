@@ -9,12 +9,21 @@ public partial class MainPage : ContentPage
 {
     private readonly List<Button> _levelButtons = new List<Button>();
     private readonly List<Button> _layerButtons = new List<Button>();
-	public MainPage(MainPageViewModel vm)
+    private readonly MainPageViewModel _mainPageViewModel;
+    public MainPage(MainPageViewModel vm)
 	{
         InitializeComponent();
         CreateLevelButtons();
         CreateLayerButtons();
         BindingContext = vm;
+        _mainPageViewModel =vm;
+    }
+    protected override void OnAppearing()
+    {
+        base.OnAppearing(); 
+        if(_mainPageViewModel.End == "True")
+            Shell.Current.GoToAsync(nameof(EndGamePage));
+
     }
 
     private void CreateLevelButtons()

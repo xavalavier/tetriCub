@@ -6,7 +6,7 @@ namespace Frac.Scenes;
 public class MainScene : GameScene
 {
 	public MainScene(
-		DrawingSurface drawingSurface)
+		GameDrawing drawingSurface)
 	{
 		Add(drawingSurface);
     }

@@ -1,14 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
-using Frac.Pages;
-using Microsoft.Maui.Controls;
 using SharpHook;
-using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Timers;
+using static Frac.DrawingHelper;
 
 namespace Frac.ViewModel;
 
@@ -35,7 +31,6 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
 
     internal bool End = false;
 
-    private readonly CompositeDisposable _disposables = new();
     private List<Cube> _cubesToDraw = new List<Cube>();
     private readonly List<Cube> _cubesInPlace = new List<Cube>();
     private readonly List<Cube> _cubesToDelete = new List<Cube>();
@@ -45,33 +40,39 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
     private List<Cube> _fallingShadows = new List<Cube>();
     private System.Timers.Timer _gameTimer;
     private System.Timers.Timer _deleteLineTimer;
-    private TaskPoolGlobalHook _hook = new TaskPoolGlobalHook();
+    private TaskPoolGlobalHook _hook;
+    private readonly List<int> _cubeProbabilities = new List<int>() {-1, 15, 30, 43, 64, 73, 82, 89, 96};
 
     public IReadOnlyList<Cube> CubeToDraw => _cubesToDraw.ToList();
+    public List<int> CubeFallen { get; set; } = new List<int>();
 
     public void Start()
     {
+        _startingfib = 0;
+        Score = 0;
+        _hook = new TaskPoolGlobalHook();
         _hook.KeyPressed += OnKeyPressed;
         _hook.RunAsync();
-        Level = DrawingHelper.Level;
+        Level = StartingLevel;
+        for (int i = 0; i < CubeDictionnary.Count; i++)
+            CubeFallen.Add(0);
         for (var i = 1; i < Level; i++)
             _startingfib += 1000 * i;
         _nextFallingCubes = CreateNewFallingCube();
         NextPart();
+        AddStartingLayer();
         UpdateFallingCube();
         _gameTimer = new System.Timers.Timer()
         {
             Interval = (10 - Level)* 100,
             AutoReset = true
-        }.DisposeWith(_disposables);
-        Level = DrawingHelper.Level;
+        };
+        
         _deleteLineTimer = new System.Timers.Timer()
         {
             Interval = 100,
             AutoReset = true
-        }.DisposeWith(_disposables);
-
-        AddStartingLayer();
+        };        
 
         _gameTimer.Elapsed += GameTimerTrigger;
         _deleteLineTimer.Elapsed += DeleteLineEffect;
@@ -82,12 +83,12 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
     private void AddStartingLayer()
     {
         var rand = new Random();
-        for (var layer = 0; layer < DrawingHelper.StartingLayers; layer++)
-            for (var x = 0;x < DrawingHelper.GridSizeX; x++ )
-                for (var y = 0;y < DrawingHelper.GridSizeY; y++ )
+        for (var layer = 0; layer < StartingLayers; layer++)
+            for (var x = 0;x < GridSizeX; x++ )
+                for (var y = 0;y < GridSizeY; y++ )
                     if(rand.Next(2)  == 0)
                     {
-                        _cubesInPlace.Add(Cube.CreateCube(x, y, layer, DrawingHelper.SupportedColors[rand.Next(10) + 1]));
+                        _cubesInPlace.Add(Cube.CreateCube(x, y, layer,  SupportedColors[rand.Next(10) + 1]));
                     }
     }
 
@@ -131,49 +132,38 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
         _fallingCubes = _nextFallingCubes;
         _fallingCubes.Cubes = _fallingCubes.Cubes.Select(cube => cube with { X = 0, Y = 0  }).ToList();
         if (CheckContact(_fallingCubes.Cubes, _altitude))
+        {
             EndGame();
+            return;
+        }
         _nextFallingCubes = CreateNewFallingCube();
         var rand = new Random();
         var r = rand.Next(3);
         for (var i = 0; i < r; i++)
             Rotate(ref _nextFallingCubes);
-        Cube.CreateCubes(-10, 0, 5, ref _nextFallingCubes);
+        Cube.CreateCubes(NextPartOffset, 0, 5, ref _nextFallingCubes);
     }
 
     private void EndGame()
     {
         _gameTimer.Stop();
-        _hook.Dispose();
         End = true;
+        _cubesInPlace.Clear();
+        _nextFallingCubes.Clear();
+        _fallingCubes.Clear();
         _cubesToDraw.Clear();
-
         Dispose();
-
-        Shell.Current.GoToAsync(nameof(EndGamePage));
+        Shell.Current.GoToAsync($"..?End={End}");
     }
 
     private Part CreateNewFallingCube()
     {
         var rand = new Random();
-        var id = rand.Next(100);
-        CubesData cubeData;
-        if (id < 15)
-            cubeData = _cubeDictionnary[0];
-        else if (id < 30)
-            cubeData = _cubeDictionnary[1];
-        else if (id < 43)
-            cubeData = _cubeDictionnary[2];
-        else if (id < 64)
-            cubeData = _cubeDictionnary[3];
-        else if (id < 73)
-            cubeData = _cubeDictionnary[4];
-        else if (id < 82)
-            cubeData = _cubeDictionnary[5];
-        else if (id < 89)
-            cubeData = _cubeDictionnary[6];
-        else cubeData = id < 96
-            ? _cubeDictionnary[7]
-            : _cubeDictionnary[8];
+        var r = rand.Next(100);
+
+        int cubeId = _cubeProbabilities.FindLastIndex(i => i < r);
+        var cubeData = CubeDictionnary[cubeId];
+        CubeFallen[cubeId]++;
 
         return new(cubeData.Length, cubeData.Width, cubeData.Height, cubeData.Color);
     }
@@ -258,6 +248,8 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
         => Rotate(ref _fallingCubes);
     internal void Rotate(ref Part part)
     {
+        if (PauseText == "Resume")
+            return;
         var width = part.Length;
         var length = part.Height;
         var height = part.Width;
@@ -272,6 +264,15 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
                 if (!CheckContact(cubesRotated.Cubes, _altitude))
                 {
                     _xGrid -= i; 
+                    goto Found;
+                }
+            }
+            for (var i = 1; i < cubesRotated.Width; i++)
+            {
+                shadows = Cube.CreateCubes(_xGrid, _yGrid - i, _altitude, ref cubesRotated);
+                if (!CheckContact(cubesRotated.Cubes, _altitude))
+                {
+                    _yGrid -= i;
                     goto Found;
                 }
             }
@@ -302,6 +303,8 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
     [RelayCommand]
     internal void Translate(string direction)
     {
+        if (PauseText == "Resume")
+            return;
         int x = 0;
         int y = 0;
         switch (direction)
@@ -319,9 +322,9 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
                 x = 1;
                 break;
         }
-        if (((x > 0 && _xGrid + _fallingCubes.Length < DrawingHelper.GridSizeX) || x < 0 && _xGrid > 0) && !CheckContact(_fallingCubes.Cubes, _altitude, x, 0))
+        if (((x > 0 && _xGrid + _fallingCubes.Length < GridSizeX) || x < 0 && _xGrid > 0) && !CheckContact(_fallingCubes.Cubes, _altitude, x, 0))
             _xGrid += x;
-        if (((y > 0 && _yGrid + _fallingCubes.Width < DrawingHelper.GridSizeY) || y < 0 && _yGrid > 0) && !CheckContact(_fallingCubes.Cubes, _altitude, 0, y))
+        if (((y > 0 && _yGrid + _fallingCubes.Width < GridSizeY) || y < 0 && _yGrid > 0) && !CheckContact(_fallingCubes.Cubes, _altitude, 0, y))
             _yGrid += y;
         UpdateFallingCube();
     }
@@ -329,7 +332,9 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
     [RelayCommand]
     internal void Drop()
     {
-        for ( int z = _altitude; z >= 0; z--)
+        if (PauseText == "Resume")
+            return;
+        for ( int z = _altitude; z >= 0 ; z--)
         {
 
             if (CheckContact(_fallingCubes.Cubes, z: z - 1))
@@ -355,20 +360,6 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
             _gameTimer.Start();
         }
     }
-
-    private record CubesData(int Length, int Width, int Height, Color Color );
-    private readonly Dictionary<int, CubesData> _cubeDictionnary = new Dictionary<int, CubesData>()
-    {
-        [0] = new(1, 1, 1, DrawingHelper.SupportedColors[1]),
-        [1] = new(1, 2, 1, DrawingHelper.SupportedColors[2]),
-        [2] = new(1, 3, 1, DrawingHelper.SupportedColors[3]),
-        [3] = new(2, 2, 1, DrawingHelper.SupportedColors[4]),
-        [4] = new(2, 2, 2, DrawingHelper.SupportedColors[5]),
-        [5] = new(1, 4, 1, DrawingHelper.SupportedColors[6]),
-        [6] = new(3, 3, 1, DrawingHelper.SupportedColors[7]),
-        [7] = new(3, 2, 2, DrawingHelper.SupportedColors[8]),
-        [8] = new(3, 3, 3, DrawingHelper.SupportedColors[9]),
-    };
 
     private void OnKeyPressed(object sender, KeyboardHookEventArgs e)
     {
@@ -396,6 +387,10 @@ public partial class GamePageViewModel : ObservableObject, IDisposable
         }
     }
 
-    public void Dispose() => _disposables.Dispose();
-
+    public void Dispose()
+    {
+        _hook.Dispose();
+        _gameTimer.Dispose();
+        _deleteLineTimer.Dispose();
+    }
 }

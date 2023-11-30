@@ -26,15 +26,16 @@ namespace Frac
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
             .Services
-            .AddTransient<DrawingSurface>()
-            .AddSingleton<GamePage>()
+            .AddTransient<GameDrawing>()
+            .AddTransient<EndGameDrawing>()
+            .AddTransient<GamePage>()
             .AddTransient<MainScene>()
+            .AddTransient<EndScene>()
             .AddSingleton<GamePageViewModel>()
             .AddSingleton<MainPage>()
             .AddSingleton<MainPageViewModel>()
             .AddTransient<EndGamePage>()
-            .AddTransient<EndGamePageViewModel>()
-            .AddSingleton<IDeviceDisplay>(DeviceDisplay.Current);
+            .AddSingleton<EndGamePageViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

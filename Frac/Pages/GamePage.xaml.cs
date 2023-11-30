@@ -8,11 +8,10 @@ public partial class GamePage : ContentPage
 {
     private readonly IGameSceneManager _gameSceneManager;
     private readonly GamePageViewModel _gamePageViewModel;
-    private readonly IDeviceDisplay _deviceDisplay;
     public GamePage(
         IGameSceneManager gameSceneManager,
-        GamePageViewModel drawingManager,
-        IDeviceDisplay deviceDisplay)
+        GamePageViewModel drawingManager
+    )
     {
         InitializeComponent();
 
@@ -20,7 +19,6 @@ public partial class GamePage : ContentPage
 
         _gameSceneManager = gameSceneManager;
         _gamePageViewModel = drawingManager;
-        _deviceDisplay = deviceDisplay;
     }
 
 
@@ -31,5 +29,11 @@ public partial class GamePage : ContentPage
         _gameSceneManager.LoadScene<MainScene>(SceneView);
         _gameSceneManager.Start();
         _gamePageViewModel.Start();
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _gameSceneManager.GameOver();
     }
 }

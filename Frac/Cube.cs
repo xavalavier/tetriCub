@@ -94,5 +94,6 @@ namespace Frac
             Height = height;
             Color = color;
         }
+        public void Clear() => Cubes.Clear();
     }
 }

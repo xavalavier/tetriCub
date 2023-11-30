@@ -4,8 +4,13 @@
             x:Class="Frac.Pages.MainPage"
             xmlns:viewmodel ="clr-namespace:Frac.ViewModel"
             x:DataType="viewmodel:MainPageViewModel"
-            Title="Frac"
+            Title="TetriCub"
             BackgroundColor="Black">
+    <Shell.TitleView>
+        <Grid BackgroundColor="MediumPurple">
+            <Label Text ="TetriCub" HorizontalOptions="Center" VerticalOptions="Center" FontSize="30" FontAttributes="Bold" TextColor="White"/>
+        </Grid>
+    </Shell.TitleView>
     <Grid
         x:Name="ButtonGrid"
         RowDefinitions="60,20,60,60,60"
@@ -17,6 +22,8 @@
             <Style TargetType="Button">
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="BackgroundColor" Value="DarkGray"/>
+                <Setter Property="HeightRequest" Value="50"/>
+                <Setter Property="WidthRequest" Value="50"/>
             </Style>
             <Style TargetType="Label">
                 <Setter Property="FontAttributes" Value="Bold"/>
@@ -28,6 +35,7 @@
             Grid.ColumnSpan="7"
             Grid.Row="0"
             Text="Start"
+            WidthRequest="-1"
             BackgroundColor="MediumPurple"
             HorizontalOptions="FillAndExpand"
             Command="{Binding StartCommand}"

@@ -123,44 +123,51 @@
 
         <Frame
         Padding="0"
-        x:Name="DrawingPanel"
-        HorizontalOptions="Start"
-        Grid.ColumnSpan="2">
-            <Grid ColumnDefinitions="100,200,150,250,200">
-                
+        HorizontalOptions="Fill"
+        MaximumHeightRequest="{OnPlatform 60, iOS=40, Android=40}"
+        Grid.ColumnSpan="3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{OnPlatform 100, iOS=300, Android=90}"/>
+                    <ColumnDefinition Width="{OnPlatform 200, iOS=300, Android=130}"/>
+                    <ColumnDefinition Width="{OnPlatform 150, iOS=300, Android=120}"/>
+                    <ColumnDefinition Width="{OnPlatform 250, iOS=300, Android=160}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="Label">
+                        <Setter Property="FontAttributes" Value="Bold"/>
+                        <Setter Property="TextColor" Value="Black"/>
+                        <Setter Property="FontSize" Value="{OnPlatform 30, iOS=30, Android=20}"/>
+                        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+                        <Setter Property="VerticalTextAlignment" Value="Center"/>
+                    </Style>
+                </Grid.Resources>
+
                 <Button
                     Grid.Column="0"
                     Background="MediumPurple"
                     Text="{Binding PauseText}"
+                    FontAttributes="Bold"
                     Command ="{Binding PauseCommand}" />
 
                 <Label
                     Text="{Binding Score, StringFormat='Score: {0}'}"
                     Grid.Column="1"
-                    FontSize="30"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
                     >
                 </Label>
                 <Label
                     Text="{Binding Level, StringFormat='Level: {0}'}"
-                    Grid.Column="2"
-                    FontSize="30"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
+                    Grid.Column="2">
                 </Label>
                 <Label
                     Text="{Binding ClearedLayers, StringFormat='Cleared layers: {0}'}"
-                    Grid.Column="3"
-                    FontSize="30"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center" />
+                    Grid.Column="3"/>
                 <Label
                     Text="{Binding TimePlayed, StringFormat='{}{0:mm}:{0:ss}'}"
+                    HorizontalTextAlignment="End"
                     Grid.Column="4"
-                    FontSize="30"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center" />
+                    Margin="0,0,5,0"/>
             </Grid>
         </Frame>
 
